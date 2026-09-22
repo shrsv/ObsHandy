@@ -15,9 +15,11 @@ let sqlJsPromise: Promise<SqlJsStatic> | null = null;
 
 function getSqlJs(pluginDir: string): Promise<SqlJsStatic> {
 	if (!sqlJsPromise) {
-		sqlJsPromise = initSqlJs({
-			locateFile: (file: string) => path.join(pluginDir, file),
-		});
+		// Read the wasm binary ourselves rather than relying on sql.js's default
+		// locateFile/fetch loading, which can't resolve a raw OS filesystem path.
+		const buf = fs.readFileSync(path.join(pluginDir, "sql-wasm.wasm"));
+		const wasmBinary = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+		sqlJsPromise = initSqlJs({ wasmBinary });
 	}
 	return sqlJsPromise!;
 }
