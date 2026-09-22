@@ -11,6 +11,12 @@ Reads Handy's local `history.db` (SQLite) and `recordings/` folder directly — 
 - **Insert latest recording (audio + transcript)** — both, using a configurable template.
 - **Browse recordings...** — a searchable list of all recordings with inline audio preview and transcript preview; insert any one of them (audio only, transcript only, or both) under the cursor.
 
+## Screenshots
+
+| Command palette | Browse recordings |
+| --- | --- |
+| ![Command palette showing the ObsHandy commands](docs/images/obshandy-actions.png) | ![Browse recordings modal with search, transcript snippets, and per-row insert/preview buttons](docs/images/obshandy-browse.png) |
+
 ## Install
 
 ### Option A — BRAT (recommended, no manual files)
