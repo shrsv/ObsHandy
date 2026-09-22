@@ -30,19 +30,22 @@ nothing breaks across Electron/Obsidian version bumps).
   need for mobile-safe fallbacks.
 - Don't add a persistent DB connection or file watcher on `history.db`; read fresh on each
   command/modal-open instead (see rationale above).
-- Keep `sql.js`'s `.wasm` binary shipped alongside `main.js` (loaded via `locateFile` pointing
-  at the plugin's own directory) — never fetch it over the network at runtime.
+- `sql.js`'s `.wasm` binary is embedded (base64) into `main.js` at build time
+  (`esbuild.config.mjs` generates `src/sqlWasmBase64.ts`, gitignored) rather than shipped as a
+  sibling file — BRAT only fetches `main.js`/`manifest.json`/`styles.css` from a release, so a
+  separate `sql-wasm.wasm` asset never reaches BRAT installs. Never fetch it over the network at
+  runtime, and never reintroduce a `locateFile`-based load path.
 - New settings go in `HandySettings` (`src/settings.ts`) with a sensible default in
   `DEFAULT_SETTINGS`, plus a corresponding `Setting` in `HandySettingTab.display()`.
 
 ## Build & release
 
-- `make build` — production build (`main.js` + `sql-wasm.wasm`), matches CI.
+- `make build` — production build (`main.js`, with the wasm binary embedded), matches CI.
 - `make dev` — esbuild watch mode.
 - `make check` — typecheck only, no emit.
 - `make release VERSION=x.y.z` — bumps `manifest.json`/`versions.json`/`package.json`, commits,
   tags, and pushes; GitHub Actions (`.github/workflows/release.yml`) builds and publishes the
-  release assets (`main.js`, `manifest.json`, `styles.css`, `sql-wasm.wasm`).
+  release assets (`main.js`, `manifest.json`, `styles.css`).
 
 Always run `make check` (and `make build` if you touched build config) before committing.
 

@@ -16,14 +16,14 @@ Reads Handy's local `history.db` (SQLite) and `recordings/` folder directly — 
 
 1. Install the **BRAT** community plugin from Obsidian's Community Plugins browser (Settings → Community plugins → Browse → search "BRAT").
 2. Open BRAT's settings → "Add beta plugin".
-3. Paste this repo's URL: `https://github.com/<your-username>/ObsHandy`.
+3. Paste this repo's URL: `https://github.com/shrsv/ObsHandy`.
 4. BRAT downloads the latest release and installs it. Future updates: BRAT → "Check for updates".
 5. Enable "ObsHandy" under Settings → Community plugins.
 
 ### Option B — Manual
 
-1. Download `main.js`, `manifest.json`, `styles.css`, `sql-wasm.wasm` from the [latest release](../../releases/latest).
-2. Create the folder `<your-vault>/.obsidian/plugins/obs-handy/` and place the four files inside it.
+1. Download `main.js`, `manifest.json`, `styles.css` from the [latest release](../../releases/latest).
+2. Create the folder `<your-vault>/.obsidian/plugins/obs-handy/` and place the three files inside it.
 3. In Obsidian: Settings → Community plugins → turn off "Restricted mode" if needed → enable "ObsHandy".
 
 ## Setup

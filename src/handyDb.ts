@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import initSqlJs, { Database, SqlJsStatic } from "sql.js";
+import { SQL_WASM_BASE64 } from "./sqlWasmBase64";
 
 export interface HistoryEntry {
 	id: number;
@@ -13,11 +14,13 @@ export interface HistoryEntry {
 
 let sqlJsPromise: Promise<SqlJsStatic> | null = null;
 
-function getSqlJs(pluginDir: string): Promise<SqlJsStatic> {
+function getSqlJs(): Promise<SqlJsStatic> {
 	if (!sqlJsPromise) {
-		// Read the wasm binary ourselves rather than relying on sql.js's default
-		// locateFile/fetch loading, which can't resolve a raw OS filesystem path.
-		const buf = fs.readFileSync(path.join(pluginDir, "sql-wasm.wasm"));
+		// The wasm binary is embedded (base64) directly in the bundle rather than
+		// shipped as a sibling file: sql.js's default locateFile/fetch loading
+		// can't resolve a raw OS filesystem path, and BRAT only fetches
+		// main.js/manifest.json/styles.css, not extra release assets.
+		const buf = Buffer.from(SQL_WASM_BASE64, "base64");
 		const wasmBinary = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 		sqlJsPromise = initSqlJs({ wasmBinary });
 	}
@@ -36,12 +39,12 @@ export function audioAbsolutePath(handyDataDir: string, fileName: string): strin
 	return path.join(recordingsDir(handyDataDir), fileName);
 }
 
-async function openDb(handyDataDir: string, pluginDir: string): Promise<Database> {
+async function openDb(handyDataDir: string): Promise<Database> {
 	const file = dbPath(handyDataDir);
 	if (!fs.existsSync(file)) {
 		throw new Error(`Handy history database not found at: ${file}`);
 	}
-	const SQL = await getSqlJs(pluginDir);
+	const SQL = await getSqlJs();
 	const buffer = fs.readFileSync(file);
 	return new SQL.Database(buffer);
 }
@@ -80,11 +83,8 @@ function runQuery(db: Database, sql: string, params: any[]): HistoryEntry[] {
 const SELECT_COLS =
 	"id, file_name, timestamp, title, transcription_text, post_processed_text";
 
-export async function getLatest(
-	handyDataDir: string,
-	pluginDir: string
-): Promise<HistoryEntry | null> {
-	const db = await openDb(handyDataDir, pluginDir);
+export async function getLatest(handyDataDir: string): Promise<HistoryEntry | null> {
+	const db = await openDb(handyDataDir);
 	try {
 		const rows = runQuery(
 			db,
@@ -99,12 +99,11 @@ export async function getLatest(
 
 export async function getPage(
 	handyDataDir: string,
-	pluginDir: string,
 	offset: number,
 	limit: number,
 	search: string
 ): Promise<{ entries: HistoryEntry[]; hasMore: boolean }> {
-	const db = await openDb(handyDataDir, pluginDir);
+	const db = await openDb(handyDataDir);
 	try {
 		let rows: HistoryEntry[];
 		if (search.trim()) {

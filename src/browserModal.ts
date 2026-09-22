@@ -8,17 +8,15 @@ const PAGE_SIZE = 25;
 
 export class RecordingBrowserModal extends Modal {
 	private settings: HandySettings;
-	private pluginDir: string;
 	private editor: Editor;
 	private offset = 0;
 	private search = "";
 	private listEl!: HTMLElement;
 	private loadMoreBtn!: HTMLButtonElement;
 
-	constructor(app: App, settings: HandySettings, pluginDir: string, editor: Editor) {
+	constructor(app: App, settings: HandySettings, editor: Editor) {
 		super(app);
 		this.settings = settings;
-		this.pluginDir = pluginDir;
 		this.editor = editor;
 	}
 
@@ -54,7 +52,6 @@ export class RecordingBrowserModal extends Modal {
 		try {
 			const { entries, hasMore } = await getPage(
 				this.settings.handyDataDir,
-				this.pluginDir,
 				this.offset,
 				PAGE_SIZE,
 				this.search

@@ -1,5 +1,4 @@
 import { Editor, MarkdownView, Notice, Plugin } from "obsidian";
-import * as path from "path";
 import { getLatest } from "./src/handyDb";
 import { insertRecording } from "./src/insert";
 import { DEFAULT_SETTINGS, HandySettings, HandySettingTab } from "./src/settings";
@@ -7,12 +6,6 @@ import { RecordingBrowserModal } from "./src/browserModal";
 
 export default class HandyPlugin extends Plugin {
 	settings!: HandySettings;
-
-	get pluginDir(): string {
-		// @ts-ignore - basePath exists on the desktop FileSystemAdapter
-		const basePath: string = this.app.vault.adapter.basePath ?? this.app.vault.adapter.getBasePath?.();
-		return path.join(basePath, this.app.vault.configDir, "plugins", this.manifest.id);
-	}
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -22,7 +15,7 @@ export default class HandyPlugin extends Plugin {
 		this.addRibbonIcon("mic", "Browse Handy recordings", () => {
 			const editor = this.getActiveEditor();
 			if (editor) {
-				new RecordingBrowserModal(this.app, this.settings, this.pluginDir, editor).open();
+				new RecordingBrowserModal(this.app, this.settings, editor).open();
 			}
 		});
 
@@ -42,7 +35,7 @@ export default class HandyPlugin extends Plugin {
 			id: "browse-recordings",
 			name: "Browse recordings...",
 			editorCallback: (editor: Editor) => {
-				new RecordingBrowserModal(this.app, this.settings, this.pluginDir, editor).open();
+				new RecordingBrowserModal(this.app, this.settings, editor).open();
 			},
 		});
 	}
@@ -54,7 +47,7 @@ export default class HandyPlugin extends Plugin {
 
 	private async insertLatest(editor: Editor, withTranscript: boolean): Promise<void> {
 		try {
-			const entry = await getLatest(this.settings.handyDataDir, this.pluginDir);
+			const entry = await getLatest(this.settings.handyDataDir);
 			if (!entry) {
 				new Notice("ObsHandy: no recordings found in Handy history.");
 				return;
