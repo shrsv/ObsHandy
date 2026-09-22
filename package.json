@@ -1,6 +1,6 @@
 {
 	"name": "obs-handy",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Insert audio and transcripts from Handy recordings into Obsidian notes.",
 	"main": "main.js",
 	"scripts": {
