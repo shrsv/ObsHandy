@@ -145,7 +145,7 @@ export class RecordingBrowserModal extends Modal {
 		// Don't read/blob the audio file until the user actually asks to preview
 		// it: with hundreds of recordings paginated in, eagerly loading every
 		// rendered row's full audio bytes would waste memory on rows never played.
-		const previewBtn = rowEl.createEl("button", { text: "▶ Preview", cls: "obs-handy-preview-btn" });
+		const previewBtn = rowEl.createEl("button", { text: "▶ Preview [P]", cls: "obs-handy-preview-btn" });
 		const audio = rowEl.createEl("audio");
 		audio.controls = true;
 		audio.style.display = "none";
@@ -166,13 +166,13 @@ export class RecordingBrowserModal extends Modal {
 
 		const actions = rowEl.createDiv({ cls: "obs-handy-row-actions" });
 
-		const insertAudioBtn = actions.createEl("button", { text: "Insert audio" });
+		const insertAudioBtn = actions.createEl("button", { text: "Insert audio [A]" });
 		insertAudioBtn.onclick = () => this.insertForRow(rowState, "audio");
 
-		const insertTranscriptBtn = actions.createEl("button", { text: "Insert transcript" });
+		const insertTranscriptBtn = actions.createEl("button", { text: "Insert transcript [T]" });
 		insertTranscriptBtn.onclick = () => this.insertForRow(rowState, "transcript");
 
-		const insertBothBtn = actions.createEl("button", { text: "Insert audio + transcript" });
+		const insertBothBtn = actions.createEl("button", { text: "Insert audio + transcript [C]" });
 		insertBothBtn.onclick = () => this.insertForRow(rowState, "both");
 	}
 
