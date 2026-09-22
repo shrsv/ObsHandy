@@ -1,6 +1,7 @@
 import { App, Editor, Modal, Setting } from "obsidian";
 import * as fs from "fs";
-import { HistoryEntry, audioAbsolutePath, getPage } from "./handyDb";
+import { shell } from "electron";
+import { HistoryEntry, audioAbsolutePath, getPage, recordingsDir } from "./handyDb";
 import { InsertMode, insertRecording } from "./insert";
 import { HandySettings } from "./settings";
 
@@ -56,10 +57,16 @@ export class RecordingBrowserModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("obs-handy-browser");
 		contentEl.tabIndex = -1;
-		contentEl.createEl("h2", { text: "Handy recordings" });
+		const header = contentEl.createDiv({ cls: "obs-handy-header" });
+		header.createEl("h2", { text: "Handy recordings" });
+		const openFolderBtn = header.createEl("button", { text: "📁 Open recordings folder" });
+		openFolderBtn.onclick = () => {
+			shell.openPath(recordingsDir(this.settings.handyDataDir));
+		};
+
 		contentEl.createEl("div", {
 			cls: "obs-handy-shortcuts-hint",
-			text: "↑/↓ select · p preview · a audio · t transcript · c combined · Enter = combined",
+			text: "↑/↓ or j/k select · p preview · a audio · t transcript · c combined · Enter = combined · / search",
 		});
 
 		new Setting(contentEl).setName("Search").addText((text) => {
@@ -78,7 +85,10 @@ export class RecordingBrowserModal extends Modal {
 		contentEl.addEventListener("keydown", this.handleKeydown);
 
 		this.reload();
-		contentEl.focus();
+		// Obsidian auto-focuses the first input in a modal on open; defer our
+		// focus to the next tick so row navigation wins by default instead of
+		// the search box.
+		window.setTimeout(() => contentEl.focus(), 0);
 	}
 
 	private reload(): void {
@@ -259,7 +269,13 @@ export class RecordingBrowserModal extends Modal {
 		}
 
 		const key = evt.key.toLowerCase();
-		if (key === "p") {
+		if (key === "j") {
+			evt.preventDefault();
+			void this.moveSelection(1);
+		} else if (key === "k") {
+			evt.preventDefault();
+			void this.moveSelection(-1);
+		} else if (key === "p") {
 			evt.preventDefault();
 			const row = this.rows[this.selectedIndex];
 			if (row) this.loadOrTogglePreview(row);

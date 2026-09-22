@@ -1,7 +1,7 @@
 import { Editor, MarkdownView, Notice, Plugin } from "obsidian";
 import { getLatest } from "./src/handyDb";
 import { InsertMode, insertRecording } from "./src/insert";
-import { DEFAULT_SETTINGS, HandySettings, HandySettingTab } from "./src/settings";
+import { DEFAULT_SETTINGS, HandySettings, HandySettingTab, openHotkeySettings } from "./src/settings";
 import { RecordingBrowserModal } from "./src/browserModal";
 
 export default class HandyPlugin extends Plugin {
@@ -40,10 +40,16 @@ export default class HandyPlugin extends Plugin {
 		this.addCommand({
 			id: "browse-recordings",
 			name: "Browse recordings...",
-			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "h" }],
+			hotkeys: [{ modifiers: ["Ctrl", "Alt", "Shift"], key: "h" }],
 			editorCallback: (editor: Editor) => {
 				new RecordingBrowserModal(this.app, this.settings, editor).open();
 			},
+		});
+
+		this.addCommand({
+			id: "customize-hotkeys",
+			name: "Customize hotkeys...",
+			callback: () => openHotkeySettings(this.app),
 		});
 	}
 

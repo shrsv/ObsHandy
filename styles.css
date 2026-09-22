@@ -6,6 +6,17 @@
 	outline: none;
 }
 
+.obs-handy-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5em;
+}
+
+.obs-handy-header h2 {
+	margin: 0;
+}
+
 .obs-handy-list {
 	max-height: 60vh;
 	overflow-y: auto;
