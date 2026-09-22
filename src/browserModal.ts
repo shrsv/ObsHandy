@@ -1,10 +1,28 @@
 import { App, Editor, Modal, Setting } from "obsidian";
-import { pathToFileURL } from "url";
+import * as fs from "fs";
 import { HistoryEntry, audioAbsolutePath, getPage } from "./handyDb";
 import { insertRecording } from "./insert";
 import { HandySettings } from "./settings";
 
 const PAGE_SIZE = 25;
+
+function mimeTypeFor(fileName: string): string {
+	const ext = fileName.split(".").pop()?.toLowerCase();
+	switch (ext) {
+		case "wav":
+			return "audio/wav";
+		case "mp3":
+			return "audio/mpeg";
+		case "ogg":
+			return "audio/ogg";
+		case "flac":
+			return "audio/flac";
+		case "m4a":
+			return "audio/mp4";
+		default:
+			return "audio/wav";
+	}
+}
 
 export class RecordingBrowserModal extends Modal {
 	private settings: HandySettings;
@@ -13,6 +31,7 @@ export class RecordingBrowserModal extends Modal {
 	private search = "";
 	private listEl!: HTMLElement;
 	private loadMoreBtn!: HTMLButtonElement;
+	private objectUrls: string[] = [];
 
 	constructor(app: App, settings: HandySettings, editor: Editor) {
 		super(app);
@@ -45,7 +64,15 @@ export class RecordingBrowserModal extends Modal {
 	private reload(): void {
 		this.listEl.empty();
 		this.offset = 0;
+		this.revokeObjectUrls();
 		this.loadPage(true);
+	}
+
+	private revokeObjectUrls(): void {
+		for (const url of this.objectUrls) {
+			URL.revokeObjectURL(url);
+		}
+		this.objectUrls = [];
 	}
 
 	private async loadPage(replace: boolean): Promise<void> {
@@ -85,8 +112,14 @@ export class RecordingBrowserModal extends Modal {
 		const audio = row.createEl("audio");
 		audio.controls = true;
 		try {
+			// Obsidian's CSP blocks media-src from file://, so we read the bytes
+			// ourselves and hand the <audio> element a blob: URL instead.
 			const absPath = audioAbsolutePath(this.settings.handyDataDir, entry.fileName);
-			audio.src = pathToFileURL(absPath).href;
+			const data = fs.readFileSync(absPath);
+			const blob = new Blob([data], { type: mimeTypeFor(entry.fileName) });
+			const url = URL.createObjectURL(blob);
+			this.objectUrls.push(url);
+			audio.src = url;
 		} catch (err) {
 			console.error("ObsHandy: failed to build preview URL", err);
 		}
@@ -113,6 +146,7 @@ export class RecordingBrowserModal extends Modal {
 	}
 
 	onClose(): void {
+		this.revokeObjectUrls();
 		this.contentEl.empty();
 	}
 }
