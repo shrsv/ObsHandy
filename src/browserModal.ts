@@ -109,20 +109,29 @@ export class RecordingBrowserModal extends Modal {
 			text: transcript.length > 200 ? transcript.slice(0, 200) + "…" : transcript,
 		});
 
+		// Don't read/blob the audio file until the user actually asks to preview
+		// it: with hundreds of recordings paginated in, eagerly loading every
+		// rendered row's full audio bytes would waste memory on rows never played.
+		const previewBtn = row.createEl("button", { text: "▶ Preview", cls: "obs-handy-preview-btn" });
 		const audio = row.createEl("audio");
 		audio.controls = true;
-		try {
-			// Obsidian's CSP blocks media-src from file://, so we read the bytes
-			// ourselves and hand the <audio> element a blob: URL instead.
-			const absPath = audioAbsolutePath(this.settings.handyDataDir, entry.fileName);
-			const data = fs.readFileSync(absPath);
-			const blob = new Blob([data], { type: mimeTypeFor(entry.fileName) });
-			const url = URL.createObjectURL(blob);
-			this.objectUrls.push(url);
-			audio.src = url;
-		} catch (err) {
-			console.error("ObsHandy: failed to build preview URL", err);
-		}
+		audio.style.display = "none";
+
+		previewBtn.onclick = () => {
+			try {
+				const absPath = audioAbsolutePath(this.settings.handyDataDir, entry.fileName);
+				const data = fs.readFileSync(absPath);
+				const blob = new Blob([data], { type: mimeTypeFor(entry.fileName) });
+				const url = URL.createObjectURL(blob);
+				this.objectUrls.push(url);
+				audio.src = url;
+				audio.style.display = "block";
+				previewBtn.style.display = "none";
+				audio.play();
+			} catch (err) {
+				console.error("ObsHandy: failed to load preview audio", err);
+			}
+		};
 
 		const actions = row.createDiv({ cls: "obs-handy-row-actions" });
 
