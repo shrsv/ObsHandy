@@ -29,6 +29,26 @@ export const DEFAULT_SETTINGS: HandySettings = {
 	preferPostProcessed: true,
 };
 
+// Obsidian doesn't have a public API for a plugin to jump straight into its own
+// hotkey binding, so this reaches into the internal (undocumented) Setting tab
+// APIs that most plugins already rely on for this. Best-effort: degrades to
+// just opening the Hotkeys tab if the internal shape ever changes.
+function openHotkeySettings(app: App): void {
+	try {
+		const setting = (app as any).setting;
+		setting.open();
+		setting.openTabById("hotkeys");
+		const tab = setting.activeTab;
+		if (tab?.searchComponent) {
+			tab.searchComponent.setValue("ObsHandy");
+			tab.searchComponent.onChanged?.();
+			tab.searchComponent.inputEl?.dispatchEvent(new Event("input"));
+		}
+	} catch (err) {
+		console.error("ObsHandy: failed to open hotkey settings", err);
+	}
+}
+
 export class HandySettingTab extends PluginSettingTab {
 	plugin: HandyPlugin;
 
@@ -56,6 +76,15 @@ export class HandySettingTab extends PluginSettingTab {
 						this.plugin.settings.handyDataDir = value.trim() || defaultHandyDataDir();
 						await this.plugin.saveSettings();
 					})
+			);
+
+		new Setting(containerEl)
+			.setName("Browse recordings hotkey")
+			.setDesc("Default: Ctrl+Alt+H. Opens Obsidian's Hotkeys settings, filtered to ObsHandy, where you can rebind it.")
+			.addButton((btn) =>
+				btn.setButtonText("Customize hotkey").onClick(() => {
+					openHotkeySettings(this.app);
+				})
 			);
 
 		new Setting(containerEl)

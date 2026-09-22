@@ -40,6 +40,7 @@ export default class HandyPlugin extends Plugin {
 		this.addCommand({
 			id: "browse-recordings",
 			name: "Browse recordings...",
+			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "h" }],
 			editorCallback: (editor: Editor) => {
 				new RecordingBrowserModal(this.app, this.settings, editor).open();
 			},

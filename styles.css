@@ -2,15 +2,32 @@
 	max-width: 640px;
 }
 
+.obs-handy-browser:focus {
+	outline: none;
+}
+
 .obs-handy-list {
 	max-height: 60vh;
 	overflow-y: auto;
 	margin-top: 0.5em;
 }
 
+.obs-handy-shortcuts-hint {
+	color: var(--text-muted);
+	font-size: 0.8em;
+	margin-bottom: 0.25em;
+}
+
 .obs-handy-row {
 	border-bottom: 1px solid var(--background-modifier-border);
 	padding: 0.75em 0;
+	border-left: 3px solid transparent;
+	padding-left: 0.5em;
+}
+
+.obs-handy-row-selected {
+	border-left-color: var(--interactive-accent);
+	background-color: var(--background-secondary);
 }
 
 .obs-handy-row-title {
