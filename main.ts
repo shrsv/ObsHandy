@@ -1,6 +1,6 @@
 import { Editor, MarkdownView, Notice, Plugin } from "obsidian";
 import { getLatest } from "./src/handyDb";
-import { insertRecording } from "./src/insert";
+import { InsertMode, insertRecording } from "./src/insert";
 import { DEFAULT_SETTINGS, HandySettings, HandySettingTab } from "./src/settings";
 import { RecordingBrowserModal } from "./src/browserModal";
 
@@ -22,13 +22,19 @@ export default class HandyPlugin extends Plugin {
 		this.addCommand({
 			id: "insert-latest-audio",
 			name: "Insert latest recording (audio)",
-			editorCallback: (editor: Editor) => this.insertLatest(editor, false),
+			editorCallback: (editor: Editor) => this.insertLatest(editor, "audio"),
+		});
+
+		this.addCommand({
+			id: "insert-latest-transcript",
+			name: "Insert latest recording (transcript only)",
+			editorCallback: (editor: Editor) => this.insertLatest(editor, "transcript"),
 		});
 
 		this.addCommand({
 			id: "insert-latest-audio-transcript",
 			name: "Insert latest recording (audio + transcript)",
-			editorCallback: (editor: Editor) => this.insertLatest(editor, true),
+			editorCallback: (editor: Editor) => this.insertLatest(editor, "both"),
 		});
 
 		this.addCommand({
@@ -45,14 +51,14 @@ export default class HandyPlugin extends Plugin {
 		return view ? view.editor : null;
 	}
 
-	private async insertLatest(editor: Editor, withTranscript: boolean): Promise<void> {
+	private async insertLatest(editor: Editor, mode: InsertMode): Promise<void> {
 		try {
 			const entry = await getLatest(this.settings.handyDataDir);
 			if (!entry) {
 				new Notice("ObsHandy: no recordings found in Handy history.");
 				return;
 			}
-			await insertRecording(this.app, editor, this.settings, entry, withTranscript);
+			await insertRecording(this.app, editor, this.settings, entry, mode);
 		} catch (err) {
 			console.error("ObsHandy: failed to fetch latest recording", err);
 			new Notice(`ObsHandy: ${(err as Error).message}`);

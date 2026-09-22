@@ -77,6 +77,14 @@ export function buildAudioTranscriptBlock(
 		.replace(/{{date}}/g, formatDate(entry.timestamp));
 }
 
+export function buildTranscriptBlock(settings: HandySettings, entry: HistoryEntry): string {
+	const transcript = chooseTranscript(entry, settings);
+	return settings.transcriptOnlyTemplate
+		.replace(/{{transcript}}/g, transcript)
+		.replace(/{{title}}/g, entry.title)
+		.replace(/{{date}}/g, formatDate(entry.timestamp));
+}
+
 export function insertAtCursor(editor: Editor, text: string): void {
 	const cursor = editor.getCursor();
 	editor.replaceRange(text, cursor);
@@ -86,18 +94,26 @@ export function insertAtCursor(editor: Editor, text: string): void {
 	editor.setCursor({ line: newLine, ch: newCh });
 }
 
+export type InsertMode = "audio" | "transcript" | "both";
+
 export async function insertRecording(
 	app: App,
 	editor: Editor,
 	settings: HandySettings,
 	entry: HistoryEntry,
-	withTranscript: boolean
+	mode: InsertMode
 ): Promise<void> {
 	try {
-		const vaultAudioPath = await copyRecordingIntoVault(app, settings, entry);
-		const text = withTranscript
-			? buildAudioTranscriptBlock(settings, entry, vaultAudioPath)
-			: buildAudioBlock(vaultAudioPath);
+		let text: string;
+		if (mode === "transcript") {
+			text = buildTranscriptBlock(settings, entry);
+		} else {
+			const vaultAudioPath = await copyRecordingIntoVault(app, settings, entry);
+			text =
+				mode === "both"
+					? buildAudioTranscriptBlock(settings, entry, vaultAudioPath)
+					: buildAudioBlock(vaultAudioPath);
+		}
 		insertAtCursor(editor, text);
 	} catch (err) {
 		console.error("ObsHandy: failed to insert recording", err);

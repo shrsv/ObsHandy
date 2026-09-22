@@ -7,8 +7,9 @@ Reads Handy's local `history.db` (SQLite) and `recordings/` folder directly — 
 ## Features
 
 - **Insert latest recording (audio)** — copies the newest Handy recording into your vault and embeds it under the cursor.
-- **Insert latest recording (audio + transcript)** — same, plus the transcript text, using a configurable template.
-- **Browse recordings...** — a searchable list of all recordings with inline audio preview and transcript preview; insert any one of them (audio-only or with transcript) under the cursor.
+- **Insert latest recording (transcript only)** — inserts just the transcript text, using a configurable template.
+- **Insert latest recording (audio + transcript)** — both, using a configurable template.
+- **Browse recordings...** — a searchable list of all recordings with inline audio preview and transcript preview; insert any one of them (audio only, transcript only, or both) under the cursor.
 
 ## Install
 

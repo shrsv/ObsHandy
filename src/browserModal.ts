@@ -95,13 +95,19 @@ export class RecordingBrowserModal extends Modal {
 
 		const insertAudioBtn = actions.createEl("button", { text: "Insert audio" });
 		insertAudioBtn.onclick = async () => {
-			await insertRecording(this.app, this.editor, this.settings, entry, false);
+			await insertRecording(this.app, this.editor, this.settings, entry, "audio");
+			this.close();
+		};
+
+		const insertTranscriptBtn = actions.createEl("button", { text: "Insert transcript" });
+		insertTranscriptBtn.onclick = async () => {
+			await insertRecording(this.app, this.editor, this.settings, entry, "transcript");
 			this.close();
 		};
 
 		const insertBothBtn = actions.createEl("button", { text: "Insert audio + transcript" });
 		insertBothBtn.onclick = async () => {
-			await insertRecording(this.app, this.editor, this.settings, entry, true);
+			await insertRecording(this.app, this.editor, this.settings, entry, "both");
 			this.close();
 		};
 	}

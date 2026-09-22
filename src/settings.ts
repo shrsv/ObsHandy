@@ -5,6 +5,7 @@ export interface HandySettings {
 	handyDataDir: string;
 	attachmentFolder: string;
 	insertTemplate: string;
+	transcriptOnlyTemplate: string;
 	preferPostProcessed: boolean;
 }
 
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: HandySettings = {
 	handyDataDir: defaultHandyDataDir(),
 	attachmentFolder: "Handy Recordings",
 	insertTemplate: "{{audio}}\n\n> [!quote] Transcript ({{date}})\n> {{transcript}}\n",
+	transcriptOnlyTemplate: "> [!quote] Transcript ({{date}})\n> {{transcript}}\n",
 	preferPostProcessed: true,
 };
 
@@ -94,6 +96,22 @@ export class HandySettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 				text.inputEl.rows = 5;
+				text.inputEl.cols = 50;
+			});
+
+		new Setting(containerEl)
+			.setName("Transcript-only template")
+			.setDesc(
+				"Placeholders: {{transcript}}, {{title}}, {{date}}. Used by the 'transcript only' insert commands."
+			)
+			.addTextArea((text) => {
+				text
+					.setValue(this.plugin.settings.transcriptOnlyTemplate)
+					.onChange(async (value) => {
+						this.plugin.settings.transcriptOnlyTemplate = value;
+						await this.plugin.saveSettings();
+					});
+				text.inputEl.rows = 4;
 				text.inputEl.cols = 50;
 			});
 	}
