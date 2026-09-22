@@ -1,0 +1,35 @@
+.obs-handy-browser {
+	max-width: 640px;
+}
+
+.obs-handy-list {
+	max-height: 60vh;
+	overflow-y: auto;
+	margin-top: 0.5em;
+}
+
+.obs-handy-row {
+	border-bottom: 1px solid var(--background-modifier-border);
+	padding: 0.75em 0;
+}
+
+.obs-handy-row-title {
+	font-weight: 600;
+}
+
+.obs-handy-row-snippet {
+	color: var(--text-muted);
+	font-size: 0.9em;
+	margin: 0.25em 0;
+}
+
+.obs-handy-row audio {
+	width: 100%;
+	margin: 0.25em 0;
+}
+
+.obs-handy-row-actions {
+	display: flex;
+	gap: 0.5em;
+	margin-top: 0.25em;
+}

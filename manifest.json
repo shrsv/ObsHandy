@@ -1,0 +1,10 @@
+{
+	"id": "obs-handy",
+	"name": "ObsHandy",
+	"version": "0.1.0",
+	"minAppVersion": "1.4.0",
+	"description": "Insert audio and transcripts from Handy (handy.computer) recordings into your notes.",
+	"author": "athreyac4",
+	"authorUrl": "",
+	"isDesktopOnly": true
+}
